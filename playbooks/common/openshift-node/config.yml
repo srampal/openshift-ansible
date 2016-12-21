@@ -138,6 +138,11 @@
     when: openshift.common.use_flannel | bool
   - role: nuage_node
     when: openshift.common.use_nuage | bool
+  - role: contiv_facts
+    when: openshift.common.use_contiv | bool
+  - role: contiv
+    contiv_role: netplugin
+    when: openshift.common.use_contiv | bool
   - role: nickhammond.logrotate
   - role: openshift_manage_node
     openshift_master_host: "{{ groups.oo_first_master.0 }}"

@@ -1,0 +1,6 @@
+{
+  "K8S_API_SERVER": "https://{{ hostvars[groups['masters'][0]].ansible_eth1.ipv4['address'] }}:{{ kube_master_api_port }}",
+  "K8S_CA": "{{ kube_ca_cert }}",
+  "K8S_KEY": "{{ kube_key }}",
+  "K8S_CERT": "{{ kube_cert }}"
+}

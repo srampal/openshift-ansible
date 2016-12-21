@@ -1,0 +1,58 @@
+---
+# This playbook allows contiv state to be cleaned up
+
+- hosts: nodes
+  sudo: yes
+
+  tasks:
+  - name: Admin | Stop netplugin, kubelet and docker
+    service: name="{{ item }}" state=stopped
+    with_items:
+     - docker
+     - netplugin
+    tags:
+      - stop_contiv
+
+  - name: Admin | clean up ovs state
+    shell: ovs-vsctl del-br {{ item }}
+    with_items:
+     - contivVxlanBridge
+     - contivVlanBridge
+    ignore_errors: yes
+    tags:
+      - erase_state
+
+  - name: Admin | clean up ports
+    shell: for p in `ifconfig  | grep vport | awk '{print $1}'`; do sudo ip link delete $p type veth; done
+    ignore_errors: yes
+    tags:
+      - erase_state
+
+- hosts: masters
+  sudo: yes
+
+  tasks:
+  - name: Admin | Stop netmaster
+    service: name="{{ item }}" state=stopped
+    with_items:
+     - netmaster
+    tags:
+      - stop_contiv
+
+  - name: Admin | Clean up contiv state
+    shell: etcdctl rm --recursive /contiv.io
+    tags:
+      - erase_state
+
+- hosts: nodes
+  sudo: yes
+  serial: 2
+
+  tasks:
+
+  - name: Admin | start docker
+    service: name="{{ item }}" state=started
+    with_items:
+     - docker
+    tags:
+      - erase_state

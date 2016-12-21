@@ -1,0 +1,22 @@
+---
+  - name: Install dnf
+    yum: name=dnf state=installed
+
+  - name: Update repo cache
+    action: shell dnf update -y
+    retries: 5
+    delay: 10
+    environment:
+      https_proxy: "{{ https_proxy }}"
+      http_proxy: "{{ http_proxy }}"
+      no_proxy: "{{ no_proxy }}"
+
+  - name: Install libselinux-python
+    shell: dnf install {{ item }} -y
+    with_items:
+      - python-dnf
+      - libselinux-python
+    environment:
+      https_proxy: "{{ https_proxy }}"
+      http_proxy: "{{ http_proxy }}"
+      no_proxy: "{{ no_proxy }}"
